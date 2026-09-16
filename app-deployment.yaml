@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beacon-server
+  labels:
+    app: beacon-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beacon-server
+  template:
+    metadata:
+      labels:
+        app: beacon-server
+    spec:
+      runtimeClassName: wasm-spin
+      containers:
+        - name: beacon-wasm
+          image: ghcr.io/spinkube/containerd-shim-spin/examples/spin-rust-hello:v0.15.1
+          command: ["/"]
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beacon-service
+spec:
+  type: NodePort
+  selector:
+    app: beacon-server
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: beacon-ingress
+  annotations:
+    ingress.class: traefik
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: beacon-service
+                port:
+                  number: 80
