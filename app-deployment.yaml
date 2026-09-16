@@ -17,7 +17,7 @@ spec:
       runtimeClassName: wasm-spin
       containers:
         - name: beacon-wasm
-          image: ghcr.io/spinkube/containerd-shim-spin/examples/spin-rust-hello:v0.15.1
+          image: ghcr.io/wiliest0r/beacon-wasm:v0.1.0
           command: ["/"]
           imagePullPolicy: IfNotPresent
           ports:
